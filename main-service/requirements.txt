@@ -1,0 +1,9 @@
+uvicorn
+pydantic
+fastapi
+qdrant_client
+sentence-transformers
+transformers
+huggingface_hub[hf_xet]
+torch>=1.0.1
+python-dotenv

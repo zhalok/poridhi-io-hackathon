@@ -1,0 +1,4 @@
+pika
+sentence-transformers
+transformers
+qdrant_client
