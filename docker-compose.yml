@@ -5,6 +5,29 @@ networks:
     driver: bridge
 
 services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  promtail:
+    image: grafana/promtail
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yaml
+      - /var/log/fastapi:/var/log/fastapi
+    command: -config.file=/etc/promtail/config.yaml
+
+  grafana:
+    image: grafana/grafana-oss
+    ports:
+      - "3000:3000"
+
+  loki:
+    image: grafana/loki
+    ports:
+      - "3100:3100"
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
