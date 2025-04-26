@@ -16,4 +16,5 @@ prometheus-client
 python-json-logger
 requests
 loguru
+psutil
 
