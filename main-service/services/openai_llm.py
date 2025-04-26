@@ -7,13 +7,36 @@ Always return the final query in english and make sure it can be used properly i
 The search text that you return needs to be in english.
 """
 
-def standardize_query(query: str) -> str:
+def standardize_query(query: str, tracer) -> str:
     client = OpenAI()
     response = client.responses.create(
         instructions=instructions,
         model='gpt-4.1-mini',
         input=query
     )
+    with tracer.start_as_current_span("standardization") as span:
+        print(response.usage.input_tokens)
+        print(response.usage.output_tokens)
+        print(response.usage.total_tokens)
+        # Define pricing per million tokens
+        input_cost_per_million = 0.10
+        output_cost_per_million = 0.40
+        input_tokens = response.usage.input_tokens
+        output_tokens = response.usage.output_tokens
+
+        # Calculate cost
+        input_cost = (input_tokens / 1000000) * input_cost_per_million
+        output_cost = (output_tokens / 1000000) * output_cost_per_million
+        total_cost = input_cost + output_cost
+        print("cost: ", total_cost)
+        span.set_attribute("cost", total_cost)
+        span.set_attribute("input_cost", input_cost)
+        span.set_attribute("output_cost", output_cost)        
+        span.set_attribute("input_tokens", response.usage.input_tokens)
+        span.set_attribute("output_tokens", response.usage.output_tokens)
+        span.set_attribute("total_tokens", response.usage.total_tokens)
+        span.set_attribute("standardized_query", response.output_text)
+     
     return response.output_text
 
 

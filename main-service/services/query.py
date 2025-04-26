@@ -10,43 +10,48 @@ from fastapi import HTTPException
 
 
 
-def query(query_text,tenant_id):
+def query(query_text,tenant_id, tracer):
+    
+    search_result = []
 
+    with tracer.start_as_current_span("search_span") as span:
+        client = get_client()
+        model = get_model(model_name=os.getenv("MODEL_NAME"))
 
-    client = get_client()
-    model = get_model(model_name=os.getenv("MODEL_NAME"))
+        is_safe = guardrail(query=query_text)
+        
+        span.set_attribute("is_safe", is_safe)
+        
+        if is_safe == False:
+            raise HTTPException(status_code=400, detail="Query is not safe")
 
-    is_safe = guardrail(query=query_text)
-    if is_safe == False:
-        raise HTTPException(status_code=400, detail="Query is not safe")
+        refined_query = standardize_query(query=query_text, tracer=tracer)
 
-    refined_query = standardize_query(query=query_text)
+        span.set_attribute("refined_query", refined_query)
 
-
-
-    query_embeddings = get_embeddings(text=refined_query,model=model)
-    collection_name = os.getenv("COLLECTION_NAME")
-    search_result = client.query_points(
-    collection_name=collection_name,
-    query=query_embeddings,
-    with_payload=True,
-    with_vectors=False,
-    query_filter=models.Filter(
-    should=[
-        models.FieldCondition(
-            key="tenant_id",
-            match=models.MatchValue(
-                value=tenant_id,
+        query_embeddings = get_embeddings(text=refined_query,model=model)
+        collection_name = os.getenv("COLLECTION_NAME")
+        search_result = client.query_points(
+        collection_name=collection_name,
+        query=query_embeddings,
+        with_payload=True,
+        with_vectors=False,
+        query_filter=models.Filter(
+        should=[
+            models.FieldCondition(
+                key="tenant_id",
+                match=models.MatchValue(
+                    value=tenant_id,
+                ),
             ),
+            models.FieldCondition(
+                key="text",         # payload field name
+                match=models.MatchValue(value=refined_query)
+            )
+        ]
         ),
-        models.FieldCondition(
-            key="text",         # payload field name
-            match=models.MatchValue(value=refined_query)
-        )
-    ]
-    ),
-    limit=100,
-    score_threshold=0.3
-    ).points
+        limit=100,
+        score_threshold=0.3
+        ).points
 
     return search_result
