@@ -38,14 +38,14 @@ def query(query_text,tenant_id):
             match=models.MatchValue(
                 value=tenant_id,
             ),
-        ),
+        )
         models.FieldCondition(
             key="text",         # payload field name
             match=models.MatchValue(value=refined_query)
         )
     ]
     ),
-    limit=3,
+    limit=100,
     score_threshold=0.3
     ).points
 
