@@ -2,7 +2,9 @@ from repositories.qdrant.vectore_store import get_client
 from services.model import get_model
 from services.embedding import get_embeddings
 import os
-from qdrant_client import QdrantClient, models
+from qdrant_client import models
+from qdrant_client.models import Filter, FieldCondition, MatchValue
+
 
 
 def query(query_text,tenant_id):
@@ -13,7 +15,6 @@ def query(query_text,tenant_id):
 
     query_embeddings = get_embeddings(text=query_text,model=model)
     collection_name = os.getenv("COLLECTION_NAME")
-
 
     search_result = client.query_points(
     collection_name=collection_name,
@@ -27,6 +28,10 @@ def query(query_text,tenant_id):
             match=models.MatchValue(
                 value=tenant_id,
             ),
+        ),
+        FieldCondition(
+            key="text",         # payload field name
+            match=MatchValue(value=query_text)
         )
     ]
     ),
