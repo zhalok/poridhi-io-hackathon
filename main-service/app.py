@@ -18,6 +18,7 @@ from repositories.qdrant.vectore_store import initiate_vector_store, create_coll
 import services.query as query_service
 import os
 from services.auth import get_tenant_id_from_token
+from fastapi.responses import JSONResponse
 
 
 app = FastAPI()
@@ -61,6 +62,9 @@ def startup_event():
 
 app.add_event_handler("startup", startup_event)
 
+@app.get("/healthcheck", tags=["Health"])
+async def healthcheck():
+    return JSONResponse(status_code=200, content={"status": "ok"})
 
 
 # Mount the static files directory

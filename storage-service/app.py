@@ -40,6 +40,10 @@ app.add_event_handler("startup", startup_event)
 # Mount the static files directory
 app.mount("/files", StaticFiles(directory=STATIC_DIR), name="static")
 
+@app.get("/healthcheck", tags=["Health"])
+async def healthcheck():
+    return JSONResponse(status_code=200, content={"status": "ok"})
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
 
