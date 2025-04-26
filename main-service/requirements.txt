@@ -17,4 +17,6 @@ python-json-logger
 requests
 loguru
 psutil
+openai
+groq
 

@@ -9,6 +9,7 @@ from repositories.qdrant.vectore_store import initiate_vector_store, create_coll
 import services.query as query_service
 import os
 from services.auth import get_tenant_id_from_token
+from fastapi.responses import JSONResponse
 
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
@@ -110,6 +111,7 @@ async def startup_event():
     else:
         print("collection already exists!!!")
 
+        
     # Start metrics collector
     async def collect_metrics():
         while True:
@@ -141,7 +143,14 @@ async def add_metrics_middleware(request: Request, call_next):
 
     return response
 
-# --- Mount static file server ---
+app.add_event_handler("startup", startup_event)
+
+@app.get("/healthcheck", tags=["Health"])
+async def healthcheck():
+    return JSONResponse(status_code=200, content={"status": "ok"})
+
+
+# Mount the static files directory
 app.mount("/files", StaticFiles(directory=STATIC_DIR), name="static")
 
 # --- Endpoints ---

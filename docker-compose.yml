@@ -41,6 +41,11 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - default
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   qdrant:
     image: qdrant/qdrant
@@ -60,10 +65,17 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - rabbitmq
-      - qdrant
+      rabbitmq:
+          condition: service_healthy
+      qdrant:
+          condition: service_started
     networks:
       - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   insertion-service:
     build:
@@ -71,8 +83,10 @@ services:
       dockerfile: Dockerfile
     container_name: insertion-service
     depends_on:
-      - rabbitmq
-      - qdrant
+      rabbitmq:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
     networks:
       - default
 
@@ -84,19 +98,29 @@ services:
     ports:
       - "8001:8001"
     depends_on:
-      - rabbitmq
-      - qdrant
+      rabbitmq:
+          condition: service_healthy
+      qdrant:
+          condition: service_started
     networks:
       - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   sync-consumer-service:
     build: 
       context: ./sync-consumer-service
       dockerfile: dockerfile
     container_name: sync-consumer-service
 
-    depends_on:
-      - rabbitmq
-      - qdrant
+    depends_on:      
+      rabbitmq:
+          condition: service_healthy
+      qdrant:
+          condition: service_started
   
   jaeger:
     image: jaegertracing/all-in-one:latest # Use a specific version in production e.g., 1.58

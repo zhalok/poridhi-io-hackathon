@@ -18,7 +18,8 @@ def handle(event, context):
     qdrant_point = prepare_qdrant_point_from_embedding(embeddings,{
         "id":json_payload["id"],
         "title":json_payload["title"],
-        "tenant_id":tenant_id
+        "tenant_id":tenant_id,
+        "text":normalized_text
     })
     operation_response = store_in_vector_store(vstore_client,collection_name=collection_name,qdrant_points=[qdrant_point])
     return operation_response
