@@ -12,7 +12,7 @@ def query(query_text,tenant_id):
     model = get_model(model_name=os.getenv("MODEL_NAME"))
 
     query_embeddings = get_embeddings(text=query_text,model=model)
-    collection_name = os.getenv("QDRANT_COLLECTION_NAME")
+    collection_name = os.getenv("COLLECTION_NAME")
 
 
     search_result = client.query_points(
