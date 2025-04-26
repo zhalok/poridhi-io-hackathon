@@ -74,6 +74,40 @@ services:
     depends_on:
       - rabbitmq
       - qdrant
+  
+  jaeger:
+    image: jaegertracing/all-in-one:latest # Use a specific version in production e.g., 1.58
+    container_name: jaeger
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver (we are using this one)
+      # - "6831:6831/udp" # Jaeger Thrift Compact Protocol (Agent) - Optional
+      # - "14268:14268" # Jaeger Thrift HTTP Protocol (Collector) - Optional
+      # - "5778:5778"   # Jaeger Thrift Binary Protocol (Collector) - Optional
+    environment:
+      # Enable OTLP receivers (usually enabled by default in recent versions)
+      - COLLECTOR_OTLP_ENABLED=true
+      # Optional: Set default sampling strategy if needed
+      # - JAEGER_SAMPLING_TYPE=const
+      # - JAEGER_SAMPLING_PARAM=1 # Sample every trace (for demo purposes)
+    networks:
+      - default
+
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "8002:8002"
+    environment:      
+      - OTEL_SERVICE_NAME=gateway-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318/v1/traces
+      - MAIN_SERVICE_URL=http://main-service:8000
+    depends_on:
+      - jaeger
+      - main-service
+    networks:
+      - default
 
 volumes:
   rabbitmq_data:
