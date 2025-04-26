@@ -50,8 +50,15 @@ def query(query_text,tenant_id, tracer):
             )
         ]
         ),
-        limit=100,
-        score_threshold=0.3
-        ).points
+        # models.FieldCondition(
+        #     key="text",         # payload field name
+        #     match=models.MatchValue(value=refined_query)
+        # )
+    ]
+    ),
+    limit=100,
+    score_threshold=0.3
+    ).points
+
 
     return search_result
