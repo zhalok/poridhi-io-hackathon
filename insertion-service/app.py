@@ -37,13 +37,14 @@ def process_local_csv(local_path: str, channel, queue_name: str) -> None:
         for row in reader:
             title = row.get("title", "").strip()
             desc  = row.get("description", "").strip()
-            if title and desc:
-                payload = {
-                    "id": str(uuid.uuid4()),
-                    "title": title,
-                    "description": desc
-                }
-                publish_to_mq(json.dumps(payload), channel, queue_name)
+
+
+            payload = {
+                "id": str(uuid.uuid4()),
+                "title": title,
+                "description": desc
+            }
+            publish_to_mq(json.dumps(payload), channel, queue_name)
 
 def download_and_process(url: str, local_path: str, channel, queue_name: str) -> None:
     """
@@ -52,24 +53,22 @@ def download_and_process(url: str, local_path: str, channel, queue_name: str) ->
     download_csv(url, local_path)
     # process_local_csv(local_path, channel, queue_name)
 
-def process_csv_from_url(url, channel, queue_name):
+def process_csv_from_url(url, tenant_id, channel, queue_name):
   
     with requests.get(url, stream=True) as response:
         response.raise_for_status()
-        # iter_lines(decode_unicode=True) yields each text line
         if response.ok == False:
             return
         lines = response.iter_lines(decode_unicode=True)
         reader = csv.DictReader(lines)
 
         for row in reader:
-            if row.get("description", "").strip() and row.get("title", "").strip():
-                data = {
-                    "id": str(uuid.uuid4()),
-                    "title": row["title"],
-                    "description": row["description"]
-                }
-                publish_to_mq(json.dumps(data), channel, queue_name)
+            data = {
+                "id": str(uuid.uuid4()),
+                "tenant_id": tenant_id,
+               **row
+            }
+            publish_to_mq(json.dumps(data), channel, queue_name)
 
 connection = create_connection()
 consumer_channel = create_channel(connection)
@@ -80,8 +79,7 @@ create_queue(consumer_channel,consumer_queue)
 def handler(event, context):
     payload = event["payload"]
     file_path = payload["file_path"]
-    id = str(uuid.uuid4())
-
+    tenant_id = payload["tenant_id"]
     create_connection = create_connection_factory()
     producer_connection = create_connection()
     producer_channel = create_channel(connection)
@@ -91,7 +89,7 @@ def handler(event, context):
 
 
     try:
-        process_csv_from_url(file_path, producer_channel, producer_queue)
+        process_csv_from_url(file_path, tenant_id, producer_channel, producer_queue)
     except Exception as e:
         print(e)
     
