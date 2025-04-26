@@ -21,21 +21,21 @@ def query(query_text,tenant_id):
     with_payload=True,
     with_vectors=False,
     query_filter=models.Filter(
-    must=[
+    should=[
         models.FieldCondition(
             key="tenant_id",
             match=models.MatchValue(
                 value=tenant_id,
             ),
         ),
-        # FieldCondition(
-        #     key="text",         # payload field name
-        #     match=MatchValue(value=query_text)
-        # )
+        models.FieldCondition(
+            key="text",         # payload field name
+            match=models.MatchValue(value=query_text)
+        )
     ]
     ),
     limit=3,
-    score_threshold=0.4
+    score_threshold=0.6
     ).points
 
     return search_result
