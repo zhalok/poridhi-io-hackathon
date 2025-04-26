@@ -1,5 +1,5 @@
 # main.py
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Query, Request, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
@@ -167,7 +167,7 @@ async def query_endpoint(query: Optional[str] = Query(default=None)):
         span.set_attribute("tenant_id", tenant_id)
         span.set_attribute("Query", query)
 
-        results = query_service.query(query, tenant_id)
+        results = query_service.query(query, tenant_id, tracer)
         results = [Result(product_id=result.id, score=result.score, payload=result.payload) for result in results]
 
         span.set_attribute("results", results)
