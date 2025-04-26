@@ -35,7 +35,7 @@ def query(query_text,tenant_id):
     ]
     ),
     limit=3,
-    score_threshold=0.6
+    score_threshold=0.3
     ).points
 
     return search_result
