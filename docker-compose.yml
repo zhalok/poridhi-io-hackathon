@@ -1,5 +1,9 @@
 version: "3.8"
 
+networks:
+  default:
+    driver: bridge
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -12,6 +16,9 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - default
+
   qdrant:
     image: qdrant/qdrant
     ports:
@@ -19,6 +26,55 @@ services:
       - "6334:6334"
     volumes:
       - ./qdrant_storage:/qdrant/storage:z
+    networks:
+      - default
+
+  main-service:
+    build:
+      context: ./main-service
+      dockerfile: Dockerfile
+    container_name: main-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+      - qdrant
+    networks:
+      - default
+
+  insertion-service:
+    build:
+      context: ./insertion-service
+      dockerfile: Dockerfile
+    container_name: insertion-service
+    depends_on:
+      - rabbitmq
+      - qdrant
+    networks:
+      - default
+
+  storage-service:
+    build:
+      context: ./storage-service
+      dockerfile: Dockerfile
+    container_name: storage-service
+    ports:
+      - "8001:8001"
+    depends_on:
+      - rabbitmq
+      - qdrant
+    networks:
+      - default
+  sync-consumer-service:
+    build: 
+      context: ./sync-consumer-service
+      dockerfile: dockerfile
+    container_name: sync-consumer-service
+
+    depends_on:
+      - rabbitmq
+      - qdrant
 
 volumes:
   rabbitmq_data:
+

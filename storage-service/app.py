@@ -50,7 +50,7 @@ async def upload_file(file: UploadFile = File(...)):
     message = json.dumps({
 
     "payload":{
-    "file_path":f"http://localhost:8001/{UPLOAD_DIR}/{file.filename}",
+    "file_path":f"http://storage-service:8001/{UPLOAD_DIR}/{file.filename}",
 
     }})
     

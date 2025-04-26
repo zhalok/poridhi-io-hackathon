@@ -13,7 +13,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 from dotenv import load_dotenv
-from repositories.qdrant.vectore_store import initiate_vector_store
+from services.model import get_model
+from repositories.qdrant.vectore_store import initiate_vector_store, create_collection
 import services.query as query_service
 import os
 
@@ -35,11 +36,17 @@ class QueryResponse(BaseModel):
 STATIC_DIR = "uploaded_data_csv_files"
 
 def startup_event():
-    load_dotenv("./.env")
+    load_dotenv()
     os.makedirs(STATIC_DIR, exist_ok=True)
+
+    get_model(model_name=os.getenv("MODEL_NAME"))
+    collection_name = os.getenv("COLLECTION_NAME")
+    
+    
 
     print("initializing qdrant ...")
     qdrant_client = initiate_vector_store()
+    create_collection(client=qdrant_client,collection_name=collection_name)
     print("qdrant_client",qdrant_client)
     print("qdrant initialized!!!")
 

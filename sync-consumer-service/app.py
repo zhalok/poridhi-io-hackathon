@@ -23,7 +23,7 @@ if collection == None:
 else:
      print("collection already exists !!")
      
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
 channel = connection.channel()
 
 # Declare the queue

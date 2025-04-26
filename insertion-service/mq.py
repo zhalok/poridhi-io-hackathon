@@ -8,7 +8,7 @@ def create_connection_factory():
         if connection is not None:
             return connection
 
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
         return connection
     
     return create_connection

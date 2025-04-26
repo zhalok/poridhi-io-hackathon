@@ -8,7 +8,7 @@ vector_client = None
 def initiate_vector_store():
     ""
     global vector_client
-    vector_client = QdrantClient(url="http://localhost:6333")
+    vector_client = QdrantClient(url="http://qdrant:6333")
 
     return vector_client
 
