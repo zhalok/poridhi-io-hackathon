@@ -1,2 +1,5 @@
 pika
 requests
+uvicorn
+fastapi
+pydantic

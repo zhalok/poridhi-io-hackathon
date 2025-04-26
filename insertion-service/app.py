@@ -124,6 +124,6 @@ consumer_channel.start_consuming()
 {
 
 "payload":{
-"file_path":"http://localhost:8001/files/amazon-products.csv"
+"file_path":"http://storage-service:8001/files/amazon-products.csv"
 
 }}

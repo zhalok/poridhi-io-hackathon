@@ -1,9 +1,27 @@
-FROM python:3.13-alpine
 
+# Use the official Python image from the Docker Hub
+FROM python:3.9-slim
+
+# Set the working directory
 WORKDIR /app
 
-COPY . /app
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install -r requirements.txt
+# Copy the requirements file into the container
+COPY requirements.txt .
 
-CMD ["python3","app.py"]
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the entire application into the container
+COPY . .
+
+# Expose the port the app runs on
+
+# Command to run the application
+CMD ["python3", "app.py"]
+
+

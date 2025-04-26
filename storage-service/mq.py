@@ -3,7 +3,7 @@ import pika
 
 
 def create_connection():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     return connection
 
 
