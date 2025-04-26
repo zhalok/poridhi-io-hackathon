@@ -71,6 +71,11 @@ services:
           condition: service_started
     networks:
       - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   insertion-service:
     build:
@@ -99,6 +104,12 @@ services:
           condition: service_started
     networks:
       - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   sync-consumer-service:
     build: 
       context: ./sync-consumer-service
