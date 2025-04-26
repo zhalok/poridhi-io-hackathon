@@ -106,7 +106,7 @@ const SearchPage: React.FC = () => {
   ])
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center ">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-black">
       <form
   onSubmit={handleSearch}
   className="flex items-center space-x-2 bg-[#1E1E1E] px-4 py-3 rounded-lg w-full max-w-xl"
@@ -132,7 +132,7 @@ const SearchPage: React.FC = () => {
           {entries.map((entry) => (
             <div
               key={entry.key}
-              className="bg-gray-900 shadow rounded-lg p-4"
+              className="bg-gray-400 shadow rounded-lg p-4"
             >
               <h2 className="font-semibold mb-2">{entry.title}</h2>
               <p className="text-sm text-gray-600">
