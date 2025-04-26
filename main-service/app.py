@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 from repositories.qdrant.vectore_store import initiate_vector_store
 import services.query as query_service
 import os
+from services.auth import get_tenant_id_from_token
 
 
 app = FastAPI()
@@ -35,7 +36,8 @@ class QueryResponse(BaseModel):
 STATIC_DIR = "uploaded_data_csv_files"
 
 def startup_event():
-    load_dotenv("./.env")
+    load_dotenv()
+    print("collection name",os.getenv("QDRANT_COLLECTION_NAME"))
     os.makedirs(STATIC_DIR, exist_ok=True)
 
     print("initializing qdrant ...")
@@ -53,7 +55,10 @@ app.mount("/files", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/query", response_model=QueryResponse)
 async def query_endpoint(query: Optional[str] = Query(default=None)):
-    results = query_service.query(query)
+
+    tenant_id = get_tenant_id_from_token("mock-token")
+
+    results = query_service.query(query,tenant_id)
     results = [Result(product_id=result.id, score=result.score,payload=result.payload) for result in results]
     
     return QueryResponse(data=results)

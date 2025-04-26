@@ -1,6 +1,7 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 from qdrant_client.models import PointStruct
+import uuid
 
 
 vector_client = None
@@ -50,8 +51,8 @@ def prepare_qdrant_point_from_payload_descriptions(model,payloads,get_embeddings
     return points
 
 def prepare_qdrant_point_from_embedding(embedding,payload):
-
-    point = PointStruct(id=payload["id"], vector=embedding, payload=payload)
+    id = uuid.uuid4()
+    point = PointStruct(id=str(id), vector=embedding, payload=payload)
     return point
         
 
