@@ -15,7 +15,6 @@ def query(query_text,tenant_id):
 
     query_embeddings = get_embeddings(text=query_text,model=model)
     collection_name = os.getenv("COLLECTION_NAME")
-
     search_result = client.query_points(
     collection_name=collection_name,
     query=query_embeddings,
@@ -29,10 +28,10 @@ def query(query_text,tenant_id):
                 value=tenant_id,
             ),
         ),
-        FieldCondition(
-            key="text",         # payload field name
-            match=MatchValue(value=query_text)
-        )
+        # FieldCondition(
+        #     key="text",         # payload field name
+        #     match=MatchValue(value=query_text)
+        # )
     ]
     ),
     limit=3,
