@@ -7,3 +7,5 @@ transformers
 huggingface_hub[hf_xet]
 torch>=1.0.1
 python-dotenv
+openai
+groq
