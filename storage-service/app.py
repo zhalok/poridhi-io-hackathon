@@ -17,6 +17,7 @@ import os
 import uuid
 from publisher import publish_to_mq
 import json
+from auth import get_tenant_id_from_token
 
 load_dotenv()
 
@@ -41,6 +42,8 @@ app.mount("/files", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
+
+    tenant_id = get_tenant_id_from_token("mock-token")
     
     file_location = f"{UPLOAD_DIR}/{file.filename}"
     
@@ -51,6 +54,7 @@ async def upload_file(file: UploadFile = File(...)):
 
     "payload":{
     "file_path":f"http://storage-service:8001/{UPLOAD_DIR}/{file.filename}",
+    "tenant_id":tenant_id
 
     }})
     
