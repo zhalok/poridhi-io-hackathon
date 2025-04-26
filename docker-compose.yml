@@ -75,6 +75,18 @@ services:
       - rabbitmq
       - qdrant
 
+  performance-tests:
+    build:
+      context: ./performance_tests
+      dockerfile: Dockerfile
+    container_name: performance-tests
+    ports:
+      - "8089:8089"  # Locust web interface
+    depends_on:
+      - main-service
+    networks:
+      - default
+
 volumes:
   rabbitmq_data:
 
