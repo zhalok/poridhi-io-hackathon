@@ -1,0 +1,18 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Set environment variables (can be overridden by docker-compose)
+ENV PYTHONUNBUFFERED=1 \
+    OTEL_SERVICE_NAME="service-a" \
+    OTEL_EXPORTER_OTLP_ENDPOINT="http://jaeger:4318/v1/traces" \
+    SERVICE_B_URL="http://service_b:8002/process"
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY main.py .
+
+EXPOSE 8002
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
